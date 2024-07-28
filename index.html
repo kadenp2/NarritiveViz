@@ -3,31 +3,19 @@
 
 <head>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name='author' content='Kaden Paris'>
-    <title>CO₂ Emissions, Life Expectancy, and Obesity Visualization</title>
-    <!-- Load CSS -->
+    <title>Obesity Data Visualization</title>
     <link rel='stylesheet' type='text/css' href='style.css'>
-    <!-- Load d3.js library -->
-    <script src='https://d3js.org/d3.v6.min.js'></script>
-    <!-- Load custom scripts -->
-    <script type="text/javascript" src='script.js' charset='utf-8'></script>
+    <script src="https://d3js.org/d3.v6.min.js"></script>
+    <script type="text/javascript" src='script.js' defer></script>
 </head>
 
 <body>
     <div id='header'>
-        <h1 style="text-align:center">Comparing CO₂ Emissions, Life Expectancy, and Obesity</h1>
-    </div>
-    <div id='introDivId'>
-        <p>This visualization explores the relationship between CO₂ emissions, life expectancy, and obesity across various countries. You can examine the trends individually and jointly to see how these variables interact over time.</p>
-    </div>
-    <div id='buttonsDivId'>
-        <button id="previous" class="btn btn-default" onclick="previousScene()">Previous</button>
-        <button id="next" class="btn btn-default" onclick="nextScene()">Next</button>
+        <h1 style="text-align:center">Obesity Data Visualization</h1>
     </div>
     <div id='chart'></div>
-    <div id='annotation'></div>
-    <div id='sourceDivId'></div>
     <div id="footer">
         <p>&copy; 2024 by Kaden Paris. All rights reserved.</p>
     </div>
