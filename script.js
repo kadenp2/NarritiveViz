@@ -26,7 +26,7 @@ function initVisualization(data) {
 }
 
 function createScene1(data) {
-    let svg = d3.select("#visualization").append("div").attr("id", "scene1").attr("class", "chart")
+    let svg = d3.select("#visualization").append("div").attr("id", "scene1").attr("class", "chart s0")
         .append("svg").attr("width", 800).attr("height", 600);
 
     let margin = { top: 50, right: 50, bottom: 50, left: 50 },
@@ -75,7 +75,7 @@ function createScene1(data) {
 }
 
 function createScene2(data) {
-    let svg = d3.select("#visualization").append("div").attr("id", "scene2").attr("class", "chart")
+    let svg = d3.select("#visualization").append("div").attr("id", "scene2").attr("class", "chart s1")
         .append("svg").attr("width", 800).attr("height", 600);
 
     let margin = { top: 50, right: 50, bottom: 50, left: 50 },
@@ -106,9 +106,7 @@ function createScene2(data) {
             .x(d => x(d.Year))
             .y(d => y(d.Obesity))
         );
-
-    // Add annotations
-    const annotations = [
+        const annotations = [
         {
             note: {
                 label: "Obesity rates rose dramatically.",
@@ -124,7 +122,7 @@ function createScene2(data) {
 }
 
 function createScene3(data) {
-    let svg = d3.select("#visualization").append("div").attr("id", "scene3").attr("class", "chart")
+    let svg = d3.select("#visualization").append("div").attr("id", "scene3").attr("class", "chart s2")
         .append("svg").attr("width", 800).attr("height", 600);
 
     let margin = { top: 50, right: 50, bottom: 50, left: 50 },
@@ -181,5 +179,3 @@ function addAnnotations(svg, annotations) {
         .attr("class", "annotation-group")
         .call(makeAnnotations);
 }
-
-
