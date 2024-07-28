@@ -1,43 +1,53 @@
 // Initialize global variables
 var sceneId = 0;
-var dataPath = '';
-var co2DataPath = 'CO2emissions.csv';
-var lifeExpectancyDataPath = 'life-expectancy.csv';
-
-function homeScene() {
-    sceneId = 0;
-    document.getElementById("bp").style.visibility = 'hidden';
-    document.getElementById("bn").style.visibility = 'hidden';
-    document.getElementById("bh").style.visibility = 'hidden';
-    document.getElementById("introDivId").style.display = "block";
-    d3.select("#sourceDivId").html("");
-    clearChart();
-}
+var scenes = ['CO2', 'LifeExpectancy', 'Obesity', 'Joint'];
+var co2Data, lifeExpectancyData, obesityData;
 
 function initVisualization() {
-    document.getElementById("bn").disabled = false;
-    document.getElementById("bp").style.visibility = 'visible';
-    document.getElementById("bn").style.visibility = 'visible';
-    document.getElementById("bh").style.visibility = 'visible';
-    document.getElementById("introDivId").style.display = "none";
-    nextScene(0);
-    d3.select("#sourceDivId").html("<p>*Original data source: <a href='https://data-source-url'>Data Source</a></p>");
+    d3.csv('CO2emissions.csv').then(function(data) {
+        co2Data = data;
+        return d3.csv('life-expectancy.csv');
+    }).then(function(data) {
+        lifeExpectancyData = data;
+        return d3.csv('obesitydata.csv');
+    }).then(function(data) {
+        obesityData = data;
+        loadScene();
+    }).catch(function(error) {
+        console.error('Error loading data: ', error);
+    });
 }
 
-function nextScene(clickId) {
-    if (clickId != 0) {
-        sceneId = clickId - 1;
-    }
-    sceneId += 1;
+function loadScene() {
     clearChart();
-    loadChart(sceneId);
+    clearAnnotation();
+    var scene = scenes[sceneId];
+    if (scene === 'CO2') {
+        loadCO2Chart();
+        annotateCO2();
+    } else if (scene === 'LifeExpectancy') {
+        loadLifeExpectancyChart();
+        annotateLifeExpectancy();
+    } else if (scene === 'Obesity') {
+        loadObesityChart();
+        annotateObesity();
+    } else if (scene === 'Joint') {
+        loadJointChart();
+        annotateJoint();
+    }
+}
+
+function nextScene() {
+    if (sceneId < scenes.length - 1) {
+        sceneId++;
+        loadScene();
+    }
 }
 
 function previousScene() {
-    if (sceneId > 1) {
-        sceneId -= 1;
-        clearChart();
-        loadChart(sceneId);
+    if (sceneId > 0) {
+        sceneId--;
+        loadScene();
     }
 }
 
@@ -45,164 +55,195 @@ function clearChart() {
     d3.select("#chart").html("");
 }
 
-function loadChart(sceneId) {
-    if (sceneId % 2 === 1) {
-        dataPath = co2DataPath;
-        loadCO2Chart();
-    } else {
-        dataPath = lifeExpectancyDataPath;
-        loadLifeExpectancyChart();
-    }
+function clearAnnotation() {
+    d3.select("#annotation").html("");
 }
 
 function loadCO2Chart() {
-    d3.csv(dataPath).then(function(data) {
-        data.forEach(d => {
-            d.Year = +d.Year;
-            d['Annual CO₂ emissions'] = +d['Annual CO₂ emissions'];
-        });
+    const margin = { top: 20, right: 80, bottom: 50, left: 50 },
+        width = 960 - margin.left - margin.right,
+        height = 500 - margin.top - margin.bottom;
 
-        var nestedData = d3.group(data, d => d.Entity);
+    const svg = d3.select("#chart")
+        .append("svg")
+        .attr("width", width + margin.left + margin.right)
+        .attr("height", height + margin.top + margin.bottom)
+        .append("g")
+        .attr("transform", `translate(${margin.left},${margin.top})`);
 
-        const margin = { top: 20, right: 80, bottom: 50, left: 50 },
-            width = 960 - margin.left - margin.right,
-            height = 500 - margin.top - margin.bottom;
-
-        const svg = d3.select("#chart")
-            .append("svg")
-            .attr("width", width + margin.left + margin.right)
-            .attr("height", height + margin.top + margin.bottom)
-            .append("g")
-            .attr("transform", `translate(${margin.left},${margin.top})`);
-
-        const x = d3.scaleTime()
-            .domain(d3.extent(data, d => d.Year))
-            .range([0, width]);
-
-        const y = d3.scaleLinear()
-            .domain([0, d3.max(data, d => d['Annual CO₂ emissions'])])
-            .nice()
-            .range([height, 0]);
-
-        const line = d3.line()
-            .x(d => x(d.Year))
-            .y(d => y(d['Annual CO₂ emissions']));
-
-        svg.append("g")
-            .attr("transform", `translate(0,${height})`)
-            .call(d3.axisBottom(x).tickFormat(d3.format("d")));
-
-        svg.append("g")
-            .call(d3.axisLeft(y));
-
-        nestedData.forEach((values, key) => {
-            svg.append("path")
-                .datum(values)
-                .attr("fill", "none")
-                .attr("stroke", d3.schemeCategory10[Math.floor(Math.random() * 10)])
-                .attr("stroke-width", 1.5)
-                .attr("d", line);
-        });
-
-        const legend = svg.selectAll(".legend")
-            .data(nestedData.keys())
-            .enter().append("g")
-            .attr("class", "legend")
-            .attr("transform", (d, i) => `translate(0,${i * 20})`);
-
-        legend.append("rect")
-            .attr("x", width - 18)
-            .attr("width", 18)
-            .attr("height", 18)
-            .style("fill", d3.schemeCategory10[Math.floor(Math.random() * 10)]);
-
-        legend.append("text")
-            .attr("x", width - 24)
-            .attr("y", 9)
-            .attr("dy", ".35em")
-            .style("text-anchor", "end")
-            .text(d => d);
-
-    }).catch(error => {
-        console.error("Error loading the data: ", error);
+    co2Data.forEach(d => {
+        d.Year = +d.Year;
+        d['Annual CO₂ emissions'] = +d['Annual CO₂ emissions'];
     });
+
+    var nestedData = d3.group(co2Data, d => d.Entity);
+
+    const x = d3.scaleTime()
+        .domain(d3.extent(co2Data, d => d.Year))
+        .range([0, width]);
+
+    const y = d3.scaleLinear()
+        .domain([0, d3.max(co2Data, d => d['Annual CO₂ emissions'])])
+        .nice()
+        .range([height, 0]);
+
+    const line = d3.line()
+        .x(d => x(d.Year))
+        .y(d => y(d['Annual CO₂ emissions']));
+
+    svg.append("g")
+        .attr("transform", `translate(0,${height})`)
+        .call(d3.axisBottom(x).tickFormat(d3.format("d")));
+
+    svg.append("g")
+        .call(d3.axisLeft(y));
+
+    nestedData.forEach((values, key) => {
+        svg.append("path")
+            .datum(values)
+            .attr("fill", "none")
+            .attr("stroke", d3.schemeCategory10[Math.floor(Math.random() * 10)])
+            .attr("stroke-width", 1.5)
+            .attr("d", line);
+    });
+
+    const legend = svg.selectAll(".legend")
+        .data(nestedData.keys())
+        .enter().append("g")
+        .attr("class", "legend")
+        .attr("transform", (d, i) => `translate(0,${i * 20})`);
+
+    legend.append("rect")
+        .attr("x", width - 18)
+        .attr("width", 18)
+        .attr("height", 18)
+        .style("fill", d3.schemeCategory10[Math.floor(Math.random() * 10)]);
+
+    legend.append("text")
+        .attr("x", width - 24)
+        .attr("y", 9)
+        .attr("dy", ".35em")
+        .style("text-anchor", "end")
+        .text(d => d);
+}
+
+function annotateCO2() {
+    d3.select("#annotation").html("<p>CO2 emissions annotation: This chart shows the annual CO₂ emissions for various countries over the years. Observe the trends and variations in emissions.</p>");
 }
 
 function loadLifeExpectancyChart() {
-    d3.csv(dataPath).then(function(data) {
-        data.forEach(d => {
-            d.Year = +d.Year;
-            d['Life expectancy'] = +d['Life expectancy'];
-        });
+    const margin = { top: 20, right: 80, bottom: 50, left: 50 },
+        width = 960 - margin.left - margin.right,
+        height = 500 - margin.top - margin.bottom;
 
-        var nestedData = d3.group(data, d => d.Entity);
+    const svg = d3.select("#chart")
+        .append("svg")
+        .attr("width", width + margin.left + margin.right)
+        .attr("height", height + margin.top + margin.bottom)
+        .append("g")
+        .attr("transform", `translate(${margin.left},${margin.top})`);
 
-        const margin = { top: 20, right: 80, bottom: 50, left: 50 },
-            width = 960 - margin.left - margin.right,
-            height = 500 - margin.top - margin.bottom;
-
-        const svg = d3.select("#chart")
-            .append("svg")
-            .attr("width", width + margin.left + margin.right)
-            .attr("height", height + margin.top + margin.bottom)
-            .append("g")
-            .attr("transform", `translate(${margin.left},${margin.top})`);
-
-        const x = d3.scaleTime()
-            .domain(d3.extent(data, d => d.Year))
-            .range([0, width]);
-
-        const y = d3.scaleLinear()
-            .domain([0, d3.max(data, d => d['Life expectancy'])])
-            .nice()
-            .range([height, 0]);
-
-        const line = d3.line()
-            .x(d => x(d.Year))
-            .y(d => y(d['Life expectancy']));
-
-        svg.append("g")
-            .attr("transform", `translate(0,${height})`)
-            .call(d3.axisBottom(x).tickFormat(d3.format("d")));
-
-        svg.append("g")
-            .call(d3.axisLeft(y));
-
-        nestedData.forEach((values, key) => {
-            svg.append("path")
-                .datum(values)
-                .attr("fill", "none")
-                .attr("stroke", d3.schemeCategory10[Math.floor(Math.random() * 10)])
-                .attr("stroke-width", 1.5)
-                .attr("d", line);
-        });
-
-        const legend = svg.selectAll(".legend")
-            .data(nestedData.keys())
-            .enter().append("g")
-            .attr("class", "legend")
-            .attr("transform", (d, i) => `translate(0,${i * 20})`);
-
-        legend.append("rect")
-            .attr("x", width - 18)
-            .attr("width", 18)
-            .attr("height", 18)
-            .style("fill", d3.schemeCategory10[Math.floor(Math.random() * 10)]);
-
-        legend.append("text")
-            .attr("x", width - 24)
-            .attr("y", 9)
-            .attr("dy", ".35em")
-            .style("text-anchor", "end")
-            .text(d => d);
-
-    }).catch(error => {
-        console.error("Error loading the data: ", error);
+    lifeExpectancyData.forEach(d => {
+        d.Year = +d.Year;
+        d['Life expectancy'] = +d['Life expectancy'];
     });
+
+    var nestedData = d3.group(lifeExpectancyData, d => d.Entity);
+
+    const x = d3.scaleTime()
+        .domain(d3.extent(lifeExpectancyData, d => d.Year))
+        .range([0, width]);
+
+    const y = d3.scaleLinear()
+        .domain([0, d3.max(lifeExpectancyData, d => d['Life expectancy'])])
+        .nice()
+        .range([height, 0]);
+
+    const line = d3.line()
+        .x(d => x(d.Year))
+        .y(d => y(d['Life expectancy']));
+
+    svg.append("g")
+        .attr("transform", `translate(0,${height})`)
+        .call(d3.axisBottom(x).tickFormat(d3.format("d")));
+
+    svg.append("g")
+        .call(d3.axisLeft(y));
+
+    nestedData.forEach((values, key) => {
+        svg.append("path")
+            .datum(values)
+            .attr("fill", "none")
+            .attr("stroke", d3.schemeCategory10[Math.floor(Math.random() * 10)])
+            .attr("stroke-width", 1.5)
+            .attr("d", line);
+    });
+
+    const legend = svg.selectAll(".legend")
+        .data(nestedData.keys())
+        .enter().append("g")
+        .attr("class", "legend")
+        .attr("transform", (d, i) => `translate(0,${i * 20})`);
+
+    legend.append("rect")
+        .attr("x", width - 18)
+        .attr("width", 18)
+        .attr("height", 18)
+        .style("fill", d3.schemeCategory10[Math.floor(Math.random() * 10)]);
+
+    legend.append("text")
+        .attr("x", width - 24)
+        .attr("y", 9)
+        .attr("dy", ".35em")
+        .style("text-anchor", "end")
+        .text(d => d);
 }
 
-document.getElementById("bh").addEventListener("click", homeScene);
-document.getElementById("bp").addEventListener("click", previousScene);
-document.getElementById("bn").addEventListener("click", nextScene);
+function annotateLifeExpectancy() {
+    d3.select("#annotation").html("<p>Life expectancy annotation: This chart shows the life expectancy for various countries over the years. Notice the general trends of increasing life expectancy and identify any anomalies.</p>");
+}
 
-window.onload = initVisualization;
+function loadObesityChart() {
+    const margin = { top: 20, right: 80, bottom: 50, left: 50 },
+        width = 960 - margin.left - margin.right,
+        height = 500 - margin.top - margin.bottom;
+
+    const svg = d3.select("#chart")
+        .append("svg")
+        .attr("width", width + margin.left + margin.right)
+        .attr("height", height + margin.top + margin.bottom)
+        .append("g")
+        .attr("transform", `translate(${margin.left},${margin.top})`);
+
+    obesityData.forEach(d => {
+        d.Year = +d.Year;
+        d['Obesity rate'] = +d['Obesity rate'];
+    });
+
+    var nestedData = d3.group(obesityData, d => d.Entity);
+
+    const x = d3.scaleTime()
+        .domain(d3.extent(obesityData, d => d.Year))
+        .range([0, width]);
+
+    const y = d3.scaleLinear()
+        .domain([0, d3.max(obesityData, d => d['Obesity rate'])])
+        .nice()
+        .range([height, 0]);
+
+    const line = d3.line()
+        .x(d => x(d.Year))
+        .y(d => y(d['Obesity rate']));
+
+    svg.append("g")
+        .attr("transform", `translate(0,${height})`)
+        .call(d3.axisBottom(x).tickFormat(d3.format("d")));
+
+    svg.append("g")
+        .call(d3.axisLeft(y));
+
+    nestedData.forEach((values, key) => {
+        svg.append("path")
+            .datum(values)
+            .attr("fill", "none")
+            .attr("stroke", d3.schemeCategory10[Math.floor(Math.random() * 10
