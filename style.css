@@ -1,16 +1,26 @@
-.chart {
+/* styles.css */
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background-color: #f4f4f9;
+}
+
+.container {
+    width: 80%;
+    max-width: 1200px;
+}
+
+h1 {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+#chart {
     width: 100%;
     height: 600px;
-}
-.tooltip {
-    position: absolute;
-    text-align: center;
-    width: 80px;
-    height: 28px;
-    padding: 2px;
-    font: 12px sans-serif;
-    background: lightsteelblue;
-    border: 0px;
-    border-radius: 8px;
-    pointer-events: none;
 }
