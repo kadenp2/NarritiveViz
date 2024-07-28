@@ -1,63 +1,178 @@
 body {
     font-family: Arial, sans-serif;
+    background-color: #F1F3F3;
+}
+
+h1 {
+    font-size: 8em;
+    font-family: 'Lato';
+    color: white;
     margin: 0;
     padding: 0;
-    background-color: #f5f5f5;
-    overflow: hidden;
 }
 
-#container {
-    width: 100%;
-    height: 100vh;
-    overflow: hidden;
+p, h2, h4, label {
+    margin: 0;
+    padding: 0;
+    color: white;
+}
+
+#title_text {
     position: relative;
+    top: auto;
+    left: auto;
 }
 
-.section {
-    width: 100%;
-    height: 100vh;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    background-color: #fff;
-    border-bottom: 1px solid #ddd;
-    position: absolute;
-    top: 100%;
-    transition: top 1s ease-in-out;
+#title_text h1, #title_text h3 {
+    padding: 0;
+    margin: 0;
+    color: white;
 }
 
-.section.active {
-    top: 0;
-}
-
-.content {
-    text-align: center;
-    max-width: 600px;
-    padding: 20px;
+#overview-text, .bar-text, #content_div {
     position: relative;
-    z-index: 1;
+    top: auto;
+    margin-top: auto;
 }
 
-.background {
-    position: absolute;
-    width: 100%;
-    height: 100%;
+#overview-text h1, .bar-text h2, #content_div h2 {
+    color: white;
+}
+
+#reference {
+    position: relative;
     top: 0;
+    bottom: auto;
     left: 0;
-    opacity: 0.3;
-    z-index: 0;
+    width: 100%;
+    height: 24px;
+    overflow: hidden;
+    background: url('../imgs/reference.jpeg');
+    background-size: cover;
 }
 
-#viz1, #viz2, #viz3 {
-    width: 80%;
-    height: 60%;
-    margin: 20px auto;
+#reference h1, #reference h2, #reference a {
+    color: black;
 }
 
-.next-button {
-    margin-top: 20px;
-    padding: 10px 20px;
-    font-size: 16px;
-    cursor: pointer;
+.s0 {
+    background: url('../imgs/First.jpg');
+    background-size: cover;
+    text-align: center;
 }
 
+.s1, .s2, .s3 {
+    background: url('../imgs/background.jpg');
+    background-size: cover;
+}
+
+.s1 h1, .s2 h1 {
+    margin-left: 2em;
+    font-size: 4rem;
+    color: white;
+}
+
+span {
+    background: black !important;
+}
+
+#overview-chart-area svg, #chart-area1 svg, #chart-area2 svg, #line-chart-area svg {
+    margin-left: auto;
+    margin-right: auto;
+    display: block;
+    background-color: white;
+}
+
+.axis {
+    font: 10px sans-serif;
+}
+
+.axis path, .axis line {
+    fill: none;
+    stroke: #D4D8DA;
+    stroke-width: 2px;
+    shape-rendering: crispEdges;
+}
+
+.line {
+    fill: none;
+    stroke-width: 3px;
+    stroke: grey;
+}
+
+.overlay {
+    fill: none;
+    pointer-events: all;
+}
+
+.focus circle {
+    fill: #F1F3F3;
+    stroke: #777;
+    stroke-width: 3px;
+}
+
+.hover-line {
+    stroke: #777;
+    stroke-width: 2px;
+    stroke-dasharray: 3,3;
+}
+
+#selections .col-md-4 {
+    padding-top: 10px;
+    padding-bottom: 10px;
+}
+
+.d3-tip {
+    line-height: 1;
+    font-weight: bold;
+    padding: 12px;
+    background: rgba(0, 0, 0, 0.8);
+    color: #fff;
+    border-radius: 2px;
+    pointer-events: none;
+}
+
+/* Creates a small triangle extender for the tooltip */
+.d3-tip:after {
+    box-sizing: border-box;
+    font-size: 10px;
+    width: 100%;
+    line-height: 1;
+    color: rgba(0, 0, 0, 0.8);
+    position: absolute;
+    pointer-events: none;
+}
+
+/* Northward tooltips */
+.d3-tip.n:after {
+    content: "\25BC";
+    margin: -1px 0 0 0;
+    top: 100%;
+    left: 0;
+    text-align: center;
+}
+
+/* Eastward tooltips */
+.d3-tip.e:after {
+    content: "\25C0";
+    margin: -4px 0 0 0;
+    top: 50%;
+    left: -8px;
+}
+
+/* Annotations */
+text.annotation {
+    font-size: 13px;
+    font-style: italic;
+    stroke: #ff5f45;
+    fill: #ff5f45;
+}
+
+rect.annotation {
+    stroke: #ff5f45;
+    fill: transparent;
+}
+
+line.annotation {
+    stroke: #ff5f45;
+}
