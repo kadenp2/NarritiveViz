@@ -106,7 +106,9 @@ function createScene2(data) {
             .x(d => x(d.Year))
             .y(d => y(d.Obesity))
         );
-        const annotations = [
+
+    // Add annotations
+    const annotations = [
         {
             note: {
                 label: "Obesity rates rose dramatically.",
