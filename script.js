@@ -1,20 +1,20 @@
 // script.js
 
 // Set the dimensions and margins of the graph
-const margin = {top: 20, right: 80, bottom: 50, left: 50},
+const margin = { top: 20, right: 80, bottom: 50, left: 50 },
     width = 960 - margin.left - margin.right,
     height = 500 - margin.top - margin.bottom;
 
 // Append the SVG object to the body of the page
 const svg = d3.select("#chart")
-  .append("svg")
+    .append("svg")
     .attr("width", width + margin.left + margin.right)
     .attr("height", height + margin.top + margin.bottom)
-  .append("g")
+    .append("g")
     .attr("transform", `translate(${margin.left},${margin.top})`);
 
 // Load the data
-d3.csv("CO2emissions.csv").then(function(data) {
+d3.csv("CO2emissions.csv").then(function (data) {
 
     // Parse the data
     data.forEach(d => {
@@ -22,8 +22,11 @@ d3.csv("CO2emissions.csv").then(function(data) {
         d['Annual CO₂ emissions'] = +d['Annual CO₂ emissions'];
     });
 
+    console.log("Parsed data:", data); // Log the parsed data for debugging
+
     // Group the data by entity
     const nestedData = d3.group(data, d => d.Entity);
+    console.log("Nested data:", nestedData); // Log the nested data for debugging
 
     // Set the scales
     const x = d3.scaleTime()
@@ -82,4 +85,3 @@ d3.csv("CO2emissions.csv").then(function(data) {
 }).catch(error => {
     console.error("Error loading the data: ", error);
 });
-
