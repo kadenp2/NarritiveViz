@@ -38,11 +38,10 @@ Promise.all([
 
     // Define scales
     const x = d3.scaleLinear()
-        .domain(d3.extent(co2Data, d => d.Year))
+        .domain([d3.min(co2Data, d => d.Year), d3.max(co2Data, d => d.Year)])
         .range([0, width]);
 
     const y = d3.scaleLinear()
-        .domain([0, d3.max(co2Data, d => d.Emissions)])
         .range([height, 0]);
 
     // Define axes
@@ -55,77 +54,36 @@ Promise.all([
         .attr("transform", "translate(0," + height + ")")
         .call(xAxis);
 
-    svg.append("g")
-        .attr("class", "y axis")
-        .call(yAxis);
+    const yAxisGroup = svg.append("g")
+        .attr("class", "y axis");
 
-    // Add line for CO2 Emissions
-    const line = d3.line()
-        .x(d => x(d.Year))
-        .y(d => y(d.Emissions));
-
-    svg.append("path")
-        .datum(co2Data)
+    // Add line
+    const line = svg.append("path")
         .attr("class", "line")
-        .attr("d", line)
-        .style("stroke", "steelblue")
-        .style("fill", "none");
+        .style("fill", "none")
+        .style("stroke-width", "2px");
 
-    // Function to transition between scenes
-    function showScene(scene) {
-        if (scene === 1) {
-            // Show CO2 Emissions
-            svg.selectAll(".line")
-                .datum(co2Data)
-                .transition()
-                .duration(1000)
-                .attr("d", line)
-                .style("stroke", "steelblue");
+    // Function to update the line
+    function updateLine(data, yValue, color) {
+        y.domain([0, d3.max(data, yValue)]);
+        yAxisGroup.transition().duration(1000).call(yAxis);
 
-        } else if (scene === 2) {
-            // Show Obesity Data
-            const obesityLine = d3.line()
-                .x(d => x(d.Year))
-                .y(d => y(d.ObesityRate));
+        const lineFunction = d3.line()
+            .x(d => x(d.Year))
+            .y(d => y(yValue(d)));
 
-            y.domain([0, d3.max(obesityData, d => d.ObesityRate)]);
-            svg.select(".y.axis").transition().duration(1000).call(yAxis);
-
-            svg.selectAll(".line")
-                .datum(obesityData)
-                .transition()
-                .duration(1000)
-                .attr("d", obesityLine)
-                .style("stroke", "orange");
-
-        } else if (scene === 3) {
-            // Show Life Expectancy Data
-            const lifeExpectancyLine = d3.line()
-                .x(d => x(d.Year))
-                .y(d => y(d.LifeExpectancy));
-
-            y.domain([0, d3.max(lifeExpectancyData, d => d.LifeExpectancy)]);
-            svg.select(".y.axis").transition().duration(1000).call(yAxis);
-
-            svg.selectAll(".line")
-                .datum(lifeExpectancyData)
-                .transition()
-                .duration(1000)
-                .attr("d", lifeExpectancyLine)
-                .style("stroke", "green");
-        }
+        line.datum(data)
+            .transition()
+            .duration(1000)
+            .attr("d", lineFunction)
+            .style("stroke", color);
     }
 
     // Initial scene
-    showScene(1);
+    updateLine(co2Data, d => d.Emissions, "steelblue");
 
-    // Add buttons for navigation
-    const scenes = ["CO2 Emissions", "Obesity Rate", "Life Expectancy"];
-    const nav = d3.select("#visualization").append("div");
-
-    scenes.forEach((scene, i) => {
-        nav.append("button")
-            .text(scene)
-            .on("click", () => showScene(i + 1));
-    });
+    // Event listeners for buttons
+    d3.select("#scene1").on("click", () => updateLine(co2Data, d => d.Emissions, "steelblue"));
+    d3.select("#scene2").on("click", () => updateLine(obesityData, d => d.ObesityRate, "orange"));
+    d3.select("#scene3").on("click", () => updateLine(lifeExpectancyData, d => d.LifeExpectancy, "green"));
 });
