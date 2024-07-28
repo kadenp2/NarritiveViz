@@ -246,4 +246,150 @@ function loadObesityChart() {
         svg.append("path")
             .datum(values)
             .attr("fill", "none")
-            .attr("stroke", d3.schemeCategory10[Math.floor(Math.random() * 10
+            .attr("stroke", d3.schemeCategory10[Math.floor(Math.random() * 10)])
+            .attr("stroke-width", 1.5)
+            .attr("d", line);
+    });
+
+        const legend = svg.selectAll(".legend")
+        .data(nestedData.keys())
+        .enter().append("g")
+        .attr("class", "legend")
+        .attr("transform", (d, i) => `translate(0,${i * 20})`);
+
+    legend.append("rect")
+        .attr("x", width - 18)
+        .attr("width", 18)
+        .attr("height", 18)
+        .style("fill", d3.schemeCategory10[Math.floor(Math.random() * 10)]);
+
+    legend.append("text")
+        .attr("x", width - 24)
+        .attr("y", 9)
+        .attr("dy", ".35em")
+        .style("text-anchor", "end")
+        .text(d => d);
+}
+
+function annotateObesity() {
+    d3.select("#annotation").html("<p>Obesity annotation: This chart shows the obesity rate for various countries over the years. Observe the trends and identify any significant changes or patterns.</p>");
+}
+
+function loadJointChart() {
+    const margin = { top: 20, right: 80, bottom: 50, left: 50 },
+        width = 960 - margin.left - margin.right,
+        height = 500 - margin.top - margin.bottom;
+
+    const svg = d3.select("#chart")
+        .append("svg")
+        .attr("width", width + margin.left + margin.right)
+        .attr("height", height + margin.top + margin.bottom)
+        .append("g")
+        .attr("transform", `translate(${margin.left},${margin.top})`);
+
+    co2Data.forEach(d => {
+        d.Year = +d.Year;
+        d['Annual CO₂ emissions'] = +d['Annual CO₂ emissions'];
+    });
+
+    lifeExpectancyData.forEach(d => {
+        d.Year = +d.Year;
+        d['Life expectancy'] = +d['Life expectancy'];
+    });
+
+    obesityData.forEach(d => {
+        d.Year = +d.Year;
+        d['Obesity rate'] = +d['Obesity rate'];
+    });
+
+    const x = d3.scaleTime()
+        .domain(d3.extent(co2Data, d => d.Year))
+        .range([0, width]);
+
+    const yLeft = d3.scaleLinear()
+        .domain([0, d3.max(co2Data, d => d['Annual CO₂ emissions'])])
+        .nice()
+        .range([height, 0]);
+
+    const yRight = d3.scaleLinear()
+        .domain([0, d3.max(lifeExpectancyData, d => d['Life expectancy'])])
+        .nice()
+        .range([height, 0]);
+
+    const lineCO2 = d3.line()
+        .x(d => x(d.Year))
+        .y(d => yLeft(d['Annual CO₂ emissions']));
+
+    const lineLifeExpectancy = d3.line()
+        .x(d => x(d.Year))
+        .y(d => yRight(d['Life expectancy']));
+
+    svg.append("g")
+        .attr("transform", `translate(0,${height})`)
+        .call(d3.axisBottom(x).tickFormat(d3.format("d")));
+
+    svg.append("g")
+        .call(d3.axisLeft(yLeft));
+
+    svg.append("g")
+        .attr("transform", `translate(${width},0)`)
+        .call(d3.axisRight(yRight));
+
+    svg.append("path")
+        .datum(co2Data)
+        .attr("fill", "none")
+        .attr("stroke", "steelblue")
+        .attr("stroke-width", 1.5)
+        .attr("d", lineCO2);
+
+    svg.append("path")
+        .datum(lifeExpectancyData)
+        .attr("fill", "none")
+        .attr("stroke", "green")
+        .attr("stroke-width", 1.5)
+        .attr("d", lineLifeExpectancy);
+
+    const nestedObesityData = d3.group(obesityData, d => d.Entity);
+
+    nestedObesityData.forEach((values, key) => {
+        svg.append("path")
+            .datum(values)
+            .attr("fill", "none")
+            .attr("stroke", d3.schemeCategory10[Math.floor(Math.random() * 10)])
+            .attr("stroke-width", 1.5)
+            .attr("d", d3.line()
+                .x(d => x(d.Year))
+                .y(d => yRight(d['Obesity rate'])));
+    });
+
+    const legend = svg.selectAll(".legend")
+        .data(nestedObesityData.keys())
+        .enter().append("g")
+        .attr("class", "legend")
+        .attr("transform", (d, i) => `translate(0,${i * 20})`);
+
+    legend.append("rect")
+        .attr("x", width - 18)
+        .attr("width", 18)
+        .attr("height", 18)
+        .style("fill", d3.schemeCategory10[Math.floor(Math.random() * 10)]);
+
+    legend.append("text")
+        .attr("x", width - 24)
+        .attr("y", 9)
+        .attr("dy", ".35em")
+        .style("text-anchor", "end")
+        .text(d => d);
+}
+
+function annotateJoint() {
+    d3.select("#annotation").html("<p>Joint annotation: This chart shows the annual CO₂ emissions, life expectancy, and obesity rate for various countries over the years. Compare and contrast the trends in these variables.</p>");
+}
+
+document.getElementById("bh").addEventListener("click", homeScene);
+document.getElementById("bp").addEventListener("click", previousScene);
+document.getElementById("bn").addEventListener("click", nextScene);
+
+window.onload = initVisualization;
+
+    
