@@ -5,36 +5,29 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name='author' content='Kaden Paris'>
-    <title>CO₂ Emissions and Life Expectancy Visualization</title>
-    <!-- Load favicon -->
-    <link rel="icon" href="https://robert-fonod.com/favicon.ico?v=2">
-    <!-- Load css files -->
+    <title>CO₂ Emissions, Life Expectancy, and Obesity Visualization</title>
+    <!-- Load CSS -->
     <link rel='stylesheet' type='text/css' href='style.css'>
-    <!-- Load d3.js libraries -->
-    <script src='https://d3js.org/d3.v4.min.js'></script>
+    <!-- Load d3.js library -->
+    <script src='https://d3js.org/d3.v6.min.js'></script>
     <!-- Load custom scripts -->
     <script type="text/javascript" src='script.js' charset='utf-8'></script>
 </head>
 
 <body>
     <div id='header'>
-        <h1 style="text-align:center">Comparing CO₂ Emissions and Life Expectancy</h1>
+        <h1 style="text-align:center">Comparing CO₂ Emissions, Life Expectancy, and Obesity</h1>
     </div>
     <div id='introDivId'>
-        <p style="text-align:center;"><img src="img/rings.jpeg" alt="Comparison of CO₂ Emissions and Life Expectancy" style="height:140px;"></p>
-        <p> This visualization explores the relationship between CO₂ emissions and life expectancy across various countries. You can examine the trends individually and jointly to see how these variables interact over time.</p>
+        <p>This visualization explores the relationship between CO₂ emissions, life expectancy, and obesity across various countries. You can examine the trends individually and jointly to see how these variables interact over time.</p>
     </div>
-    <br>
     <div id='buttonsDivId'>
-        <button id="bp" type="button" class="btn btn-default" style="visibility: hidden" onclick="previousScene()">&laquo; Previous</button>
-        <button id="bh" type="button" class="btn-home btn-default" style="visibility: hidden" onclick="homeScene()">Home</button>
-        <button id="bn" type="button" class="btn btn-default" style="visibility: hidden" onclick="nextScene(0)">Next &raquo;</button>
+        <button id="previous" class="btn btn-default" onclick="previousScene()">Previous</button>
+        <button id="next" class="btn btn-default" onclick="nextScene()">Next</button>
     </div>
-    <div id='yearsDivId'></div>
-    <div id="venueDivId"></div>
     <div id='chart'></div>
+    <div id='annotation'></div>
     <div id='sourceDivId'></div>
-    <br>
     <div id="footer">
         <p>&copy; 2024 by Kaden Paris. All rights reserved.</p>
     </div>
