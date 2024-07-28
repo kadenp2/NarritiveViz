@@ -1,92 +1,185 @@
-document.addEventListener("DOMContentLoaded", function () {
-    let currentSection = 0;
-    const sections = document.querySelectorAll(".section");
-    sections[currentSection].classList.add("active");
+d3.csv('C02emissions.csv').then(c02Data => {
+    d3.csv('obesitydata.csv').then(obesityData => {
+        d3.csv('life-expectancy.csv').then(lifeExpectancyData => {
+            let mergedData = c02Data.map(d => {
+                let obesity = obesityData.find(o => o.Country === d.Country && o.Year === d.Year);
+                let lifeExpectancy = lifeExpectancyData.find(l => l.Country === d.Country && l.Year === d.Year);
+                return {
+                    Country: d.Country,
+                    Year: +d.Year,
+                    CO2Emissions: +d.CO2Emissions,
+                    Obesity: obesity ? +obesity.Obesity : null,
+                    LifeExpectancy: lifeExpectancy ? +lifeExpectancy.LifeExpectancy : null
+                };
+            });
 
-    const showSection = (index) => {
-        sections[currentSection].classList.remove("active");
-        currentSection = index;
-        sections[currentSection].classList.add("active");
-    };
-
-    document.getElementById("next0").addEventListener("click", () => showSection(1));
-    document.getElementById("next1").addEventListener("click", () => showSection(2));
-    document.getElementById("next2").addEventListener("click", () => showSection(3));
-    document.getElementById("next3").addEventListener("click", () => showSection(0));
-
-    d3.csv("data.csv").then(data => {
-        data.forEach(d => {
-            d.Year = +d.Year;
-            d['Annual CO₂ emissions'] = +d['Annual CO₂ emissions'];
+            initVisualization(mergedData);
         });
-
-        const margin = { top: 20, right: 30, bottom: 40, left: 50 },
-            width = 800 - margin.left - margin.right,
-            height = 600 - margin.top - margin.bottom;
-
-        function createChart(elementId, filterYear, title) {
-            const svg = d3.select(elementId)
-                .append("svg")
-                .attr("width", width + margin.left + margin.right)
-                .attr("height", height + margin.top + margin.bottom)
-                .append("g")
-                .attr("transform", `translate(${margin.left},${margin.top})`);
-
-            const filteredData = data.filter(d => d.Year === filterYear);
-
-            const x = d3.scaleBand()
-                .domain(filteredData.map(d => d.Entity))
-                .range([0, width])
-                .padding(0.1);
-
-            const y = d3.scaleLinear()
-                .domain([0, d3.max(filteredData, d => d['Annual CO₂ emissions'])])
-                .nice()
-                .range([height, 0]);
-
-            svg.append("g")
-                .attr("transform", `translate(0,${height})`)
-                .call(d3.axisBottom(x).tickFormat(d => d));
-
-            svg.append("g")
-                .call(d3.axisLeft(y).tickFormat(d3.format(".2s")));
-
-            svg.selectAll(".bar")
-                .data(filteredData)
-                .enter().append("rect")
-                .attr("class", "bar")
-                .attr("x", d => x(d.Entity))
-                .attr("y", d => y(d['Annual CO₂ emissions']))
-                .attr("width", x.bandwidth())
-                .attr("height", d => height - y(d['Annual CO₂ emissions']))
-                .style("fill", "steelblue");
-
-            svg.append("text")
-                .attr("x", width / 2)
-                .attr("y", -margin.top / 2)
-                .attr("text-anchor", "middle")
-                .style("font-size", "16px")
-                .style("font-weight", "bold")
-                .text(title);
-
-            const annotations = filteredData.map(d => ({
-                note: { label: `${d.Entity}: ${d3.format(".2s")(d['Annual CO₂ emissions'])} Mt`, title: "CO2 Emissions" },
-                x: x(d.Entity) + x.bandwidth() / 2,
-                y: y(d['Annual CO₂ emissions']),
-                dy: -10,
-                dx: 10
-            }));
-
-            const makeAnnotations = d3.annotation()
-                .type(d3.annotationLabel)
-                .annotations(annotations);
-
-            svg.append("g")
-                .call(makeAnnotations);
-        }
-
-        createChart("#viz1", 1949, "CO2 Emissions in 1949");
-        createChart("#viz2", 1950, "CO2 Emissions in 1950");
-        createChart("#viz3", 1951, "CO2 Emissions in 1951");
     });
 });
+
+function initVisualization(data) {
+    // Create scenes
+    createScene1(data);
+    createScene2(data);
+    createScene3(data);
+}
+
+function createScene1(data) {
+    let svg = d3.select("#visualization").append("div").attr("id", "scene1").attr("class", "chart")
+        .append("svg").attr("width", 800).attr("height", 600);
+
+    let margin = { top: 50, right: 50, bottom: 50, left: 50 },
+        width = +svg.attr("width") - margin.left - margin.right,
+        height = +svg.attr("height") - margin.top - margin.bottom;
+
+    let x = d3.scaleTime().range([0, width]);
+    let y = d3.scaleLinear().range([height, 0]);
+
+    let g = svg.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+    x.domain(d3.extent(data, d => d.Year));
+    y.domain([0, d3.max(data, d => d.CO2Emissions)]);
+
+    g.append("g")
+        .attr("transform", "translate(0," + height + ")")
+        .call(d3.axisBottom(x).ticks(10));
+
+    g.append("g")
+        .call(d3.axisLeft(y).ticks(10));
+
+    g.append("path")
+        .datum(data)
+        .attr("fill", "none")
+        .attr("stroke", "steelblue")
+        .attr("stroke-width", 1.5)
+        .attr("d", d3.line()
+            .x(d => x(d.Year))
+            .y(d => y(d.CO2Emissions))
+        );
+
+    // Add annotations
+    const annotations = [
+        {
+            note: {
+                label: "CO2 Emissions increased significantly.",
+                title: "Significant Increase"
+            },
+            data: { Year: 2005, CO2Emissions: 4000 },
+            dy: -100,
+            dx: 100
+        }
+    ];
+
+    addAnnotations(svg, annotations);
+}
+
+function createScene2(data) {
+    let svg = d3.select("#visualization").append("div").attr("id", "scene2").attr("class", "chart")
+        .append("svg").attr("width", 800).attr("height", 600);
+
+    let margin = { top: 50, right: 50, bottom: 50, left: 50 },
+        width = +svg.attr("width") - margin.left - margin.right,
+        height = +svg.attr("height") - margin.top - margin.bottom;
+
+    let x = d3.scaleTime().range([0, width]);
+    let y = d3.scaleLinear().range([height, 0]);
+
+    let g = svg.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+    x.domain(d3.extent(data, d => d.Year));
+    y.domain([0, d3.max(data, d => d.Obesity)]);
+
+    g.append("g")
+        .attr("transform", "translate(0," + height + ")")
+        .call(d3.axisBottom(x).ticks(10));
+
+    g.append("g")
+        .call(d3.axisLeft(y).ticks(10));
+
+    g.append("path")
+        .datum(data)
+        .attr("fill", "none")
+        .attr("stroke", "red")
+        .attr("stroke-width", 1.5)
+        .attr("d", d3.line()
+            .x(d => x(d.Year))
+            .y(d => y(d.Obesity))
+        );
+
+    // Add annotations
+    const annotations = [
+        {
+            note: {
+                label: "Obesity rates rose dramatically.",
+                title: "Rising Obesity"
+            },
+            data: { Year: 2010, Obesity: 30 },
+            dy: -80,
+            dx: 80
+        }
+    ];
+
+    addAnnotations(svg, annotations);
+}
+
+function createScene3(data) {
+    let svg = d3.select("#visualization").append("div").attr("id", "scene3").attr("class", "chart")
+        .append("svg").attr("width", 800).attr("height", 600);
+
+    let margin = { top: 50, right: 50, bottom: 50, left: 50 },
+        width = +svg.attr("width") - margin.left - margin.right,
+        height = +svg.attr("height") - margin.top - margin.bottom;
+
+    let x = d3.scaleTime().range([0, width]);
+    let y = d3.scaleLinear().range([height, 0]);
+
+    let g = svg.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+    x.domain(d3.extent(data, d => d.Year));
+    y.domain([0, d3.max(data, d => d.LifeExpectancy)]);
+
+    g.append("g")
+        .attr("transform", "translate(0," + height + ")")
+        .call(d3.axisBottom(x).ticks(10));
+
+    g.append("g")
+        .call(d3.axisLeft(y).ticks(10));
+
+    g.append("path")
+        .datum(data)
+        .attr("fill", "none")
+        .attr("stroke", "green")
+        .attr("stroke-width", 1.5)
+        .attr("d", d3.line()
+            .x(d => x(d.Year))
+            .y(d => y(d.LifeExpectancy))
+        );
+
+    // Add annotations
+    const annotations = [
+        {
+            note: {
+                label: "Life expectancy has increased over time.",
+                title: "Increasing Life Expectancy"
+            },
+            data: { Year: 2015, LifeExpectancy: 70 },
+            dy: -60,
+            dx: 60
+        }
+    ];
+
+    addAnnotations(svg, annotations);
+}
+
+function addAnnotations(svg, annotations) {
+    const makeAnnotations = d3.annotation()
+        .type(d3.annotationLabel)
+        .annotations(annotations);
+
+    svg.append("g")
+        .attr("class", "annotation-group")
+        .call(makeAnnotations);
+}
+
+
