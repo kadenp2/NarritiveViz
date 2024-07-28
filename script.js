@@ -2,8 +2,8 @@
 
 // Load the datasets
 Promise.all([
-    d3.csv('/mnt/data/life-expectancy.csv'),
-    d3.csv('/mnt/data/obesitydata.csv')
+    d3.csv('life-expectancy.csv'),
+    d3.csv('obesitydata.csv')
 ]).then(([lifeExpectancyData, obesityData]) => {
     // Preprocess data
     lifeExpectancyData.forEach(d => {
@@ -200,4 +200,6 @@ Promise.all([
 
     // Trigger to show the next scene
     d3.select('body').on('click', showNextScene);
+}).catch(error => {
+    console.error('Error loading the data:', error);
 });
