@@ -1,17 +1,28 @@
-// Load data
+document.addEventListener("DOMContentLoaded", function () {
+    let currentSection = 0;
+    const sections = document.querySelectorAll(".section");
+    sections[currentSection].classList.add("active");
+
+    const nextSection = () => {
+        sections[currentSection].classList.remove("active");
+        currentSection = (currentSection + 1) % sections.length;
+        sections[currentSection].classList.add("active");
+    };
+
+    setInterval(nextSection, 5000);
+});
+
+// Load data and create visualizations
 d3.csv("data.csv").then(data => {
-    // Parse data
     data.forEach(d => {
         d.Year = +d.Year;
         d['Annual CO₂ emissions'] = +d['Annual CO₂ emissions'];
     });
 
-    // Set up dimensions and margins
     const margin = { top: 20, right: 30, bottom: 40, left: 50 },
-        width = 600 - margin.left - margin.right,
-        height = 400 - margin.top - margin.bottom;
+        width = 800 - margin.left - margin.right,
+        height = 600 - margin.top - margin.bottom;
 
-    // Function to create a chart
     function createChart(elementId, filterYear, title) {
         const svg = d3.select(elementId)
             .append("svg")
@@ -20,10 +31,8 @@ d3.csv("data.csv").then(data => {
             .append("g")
             .attr("transform", `translate(${margin.left},${margin.top})`);
 
-        // Filter data for the current year
         const filteredData = data.filter(d => d.Year === filterYear);
 
-        // Define scales
         const x = d3.scaleBand()
             .domain(filteredData.map(d => d.Entity))
             .range([0, width])
@@ -34,7 +43,6 @@ d3.csv("data.csv").then(data => {
             .nice()
             .range([height, 0]);
 
-        // Add axes
         svg.append("g")
             .attr("transform", `translate(0,${height})`)
             .call(d3.axisBottom(x).tickFormat(d => d));
@@ -42,7 +50,6 @@ d3.csv("data.csv").then(data => {
         svg.append("g")
             .call(d3.axisLeft(y).tickFormat(d3.format(".2s")));
 
-        // Add bars
         svg.selectAll(".bar")
             .data(filteredData)
             .enter().append("rect")
@@ -53,7 +60,6 @@ d3.csv("data.csv").then(data => {
             .attr("height", d => height - y(d['Annual CO₂ emissions']))
             .style("fill", "steelblue");
 
-        // Add title
         svg.append("text")
             .attr("x", width / 2)
             .attr("y", -margin.top / 2)
@@ -62,7 +68,6 @@ d3.csv("data.csv").then(data => {
             .style("font-weight", "bold")
             .text(title);
 
-        // Add annotations
         const annotations = filteredData.map(d => ({
             note: { label: `${d.Entity}: ${d3.format(".2s")(d['Annual CO₂ emissions'])} Mt`, title: "CO2 Emissions" },
             x: x(d.Entity) + x.bandwidth() / 2,
@@ -79,9 +84,7 @@ d3.csv("data.csv").then(data => {
             .call(makeAnnotations);
     }
 
-    // Create charts for each section
     createChart("#viz1", 1949, "CO2 Emissions in 1949");
     createChart("#viz2", 1950, "CO2 Emissions in 1950");
     createChart("#viz3", 1951, "CO2 Emissions in 1951");
 });
-
