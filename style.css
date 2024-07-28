@@ -1,182 +1,28 @@
 body {
     font-family: Arial, sans-serif;
-    background-color: #F1F3F3;
 }
 
-h1 {
-    font-size: 8em;
-    font-family: 'Lato';
-    color: white;
-    margin: 0;
-    padding: 0;
-}
-
-p, h2, h4, label {
-    margin: 0;
-    padding: 0;
-    color: white;
-}
-
-#title_text {
-    position: relative;
-    top: auto;
-    left: auto;
-}
-
-#title_text h1, #title_text h3 {
-    padding: 0;
-    margin: 0;
-    color: white;
-}
-
-#overview-text, .bar-text, #content_div {
-    position: relative;
-    top: auto;
-    margin-top: auto;
-}
-
-#overview-text h1, .bar-text h2, #content_div h2 {
-    color: white;
-}
-
-#reference {
-    position: relative;
-    top: 0;
-    bottom: auto;
-    left: 0;
+#visualization {
     width: 100%;
-    height: 24px;
-    overflow: hidden;
-    background: url('https://images.unsplash.com/photo-1532601226399-949173d9ebd3');
-    background-size: cover;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
 }
 
-#reference h1, #reference h2, #reference a {
-    color: black;
+svg {
+    width: 80%;
+    height: 80%;
 }
 
-.s0 {
-    background: url('https://images.unsplash.com/photo-1581092580518-4c4f03a926cf');
-    background-size: cover;
-    text-align: center;
+.annotation {
+    font-size: 14px;
+    fill: #000;
 }
 
-.s1 {
-    background: url('https://images.unsplash.com/photo-1584999735426-12d599af83e4');
-    background-size: cover;
-}
-
-.s2 {
-    background: url('https://images.unsplash.com/photo-1515200178547-84ad3fa35eff');
-    background-size: cover;
-}
-
-.s3 {
-    background: url('https://images.unsplash.com/photo-1515200178547-84ad3fa35eff');
-    background-size: cover;
-}
-
-span {
-    background: black !important;
-}
-
-#overview-chart-area svg, #chart-area1 svg, #chart-area2 svg, #line-chart-area svg {
-    margin-left: auto;
-    margin-right: auto;
-    display: block;
-    background-color: white;
-}
-
-.axis {
-    font: 10px sans-serif;
-}
-
-.axis path, .axis line {
-    fill: none;
-    stroke: #D4D8DA;
-    stroke-width: 2px;
-    shape-rendering: crispEdges;
-}
-
-.line {
-    fill: none;
-    stroke-width: 3px;
-    stroke: grey;
-}
-
-.overlay {
-    fill: none;
-    pointer-events: all;
-}
-
-.focus circle {
-    fill: #F1F3F3;
-    stroke: #777;
-    stroke-width: 3px;
-}
-
-.hover-line {
-    stroke: #777;
-    stroke-width: 2px;
-    stroke-dasharray: 3,3;
-}
-
-#selections .col-md-4 {
-    padding-top: 10px;
-    padding-bottom: 10px;
-}
-
-.d3-tip {
-    line-height: 1;
-    font-weight: bold;
-    padding: 12px;
-    background: rgba(0, 0, 0, 0.8);
-    color: #fff;
-    border-radius: 2px;
-    pointer-events: none;
-}
-
-/* Creates a small triangle extender for the tooltip */
-.d3-tip:after {
-    box-sizing: border-box;
-    font-size: 10px;
-    width: 100%;
-    line-height: 1;
-    color: rgba(0, 0, 0, 0.8);
-    position: absolute;
-    pointer-events: none;
-}
-
-/* Northward tooltips */
-.d3-tip.n:after {
-    content: "\25BC";
-    margin: -1px 0 0 0;
-    top: 100%;
-    left: 0;
-    text-align: center;
-}
-
-/* Eastward tooltips */
-.d3-tip.e:after {
-    content: "\25C0";
-    margin: -4px 0 0 0;
-    top: 50%;
-    left: -8px;
-}
-
-/* Annotations */
-text.annotation {
-    font-size: 13px;
-    font-style: italic;
-    stroke: #ff5f45;
-    fill: #ff5f45;
-}
-
-rect.annotation {
-    stroke: #ff5f45;
-    fill: transparent;
-}
-
-line.annotation {
-    stroke: #ff5f45;
+button {
+    margin: 5px;
+    padding: 10px 20px;
+    cursor: pointer;
 }
